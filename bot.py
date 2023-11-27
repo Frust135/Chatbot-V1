@@ -9,12 +9,11 @@ class Bot:
     def __init__(self, adapter: BotFrameworkAdapter):
         self.adapter = adapter
 
-    async def handle_message(self, activity: Activity):
-        async with self.adapter:
-            await self.adapter.process_activity(activity, on_message_activity)
+    async def handle_message(self, data):
+        activity = Activity.deserialize(data['body'])
+        await self.adapter.process_activity(activity, data['auth'], on_message_activity)
 
 def create_bot():
-    # Configuración del adaptador del bot
     config = get_bot_config()
-    adapter = BotFrameworkAdapter(config.APP_ID, config.APP_PASSWORD)
+    adapter = BotFrameworkAdapter(config)
     return Bot(adapter)

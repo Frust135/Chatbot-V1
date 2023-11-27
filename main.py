@@ -7,8 +7,15 @@ bot = create_bot()
 # Endpoint
 async def messages(request):
     if request.method == 'POST':
-        body = await request.json()
-        await bot.handle_message(body)
+        if "application/json" in request.headers["Content-Type"]:
+            body = await request.json()
+        else:
+            return web.Response(status=415)
+        auth_header = (request.headers["Authorization"] if "Authorization" in request.headers else "")
+        data = {}
+        data['body'] = body
+        data['auth'] = auth_header
+        await bot.handle_message(data)
         return web.Response()
 
 app.router.add_post('/api/messages', messages)
