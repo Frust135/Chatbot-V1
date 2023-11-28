@@ -1,9 +1,8 @@
-from botbuilder.core import BotFrameworkAdapterSettings
+import os
 
-class BotConfig:
-    APP_ID = '143ebc27-dff8-4fdf-b3c6-c33374b54dfa'
-    APP_PASSWORD = 'bQb8Q~GMqMGpJToXANLoZxF-44AHY1lW4isYFb0A'
-
-def get_bot_config():
-    botconfig = BotConfig()
-    return BotFrameworkAdapterSettings(app_id=botconfig.APP_ID, app_password=botconfig.APP_PASSWORD)
+class DefaultConfig:
+    """ Bot Configuration """
+    
+    PORT = 3978
+    APP_ID = os.environ.get("MicrosoftAppId", "")
+    APP_PASSWORD = os.environ.get("MicrosoftAppPassword", "")
