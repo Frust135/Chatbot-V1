@@ -19,6 +19,10 @@ class Bot(ActivityHandler):
         
         if "options" in text:
             await self.send_options(turn_context)
+        elif "option" in text:
+            await turn_context.send_activity(
+                "Selected option: {}".format(turn_context.activity.text)
+            )
         else:
             await turn_context.send_activity("Hello World!")
     
@@ -31,7 +35,7 @@ class Bot(ActivityHandler):
         suggest = SuggestedActions(actions=actions)
         
         message = Activity(
-            type=ActivityTypes,
+            type=ActivityTypes.message,
             text="Select an option:",
             suggested_actions=suggest
         )
