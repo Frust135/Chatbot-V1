@@ -1,3 +1,4 @@
 botbuilder-azure==4.14.6
 botbuilder-core==4.14.6
 botbuilder-schema==4.14.6
+aiohttp
