@@ -18,6 +18,7 @@ async def messages(request):
         await bot.handle_message(data)
         return web.Response()
 
+app.router.add_post('/', messages)
 app.router.add_post('/api/messages', messages)
 
 if __name__ == '__main__':
