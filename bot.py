@@ -5,14 +5,16 @@ from botbuilder.core import (
     CardFactory
 )
 
+
 from botbuilder.schema import (
     ChannelAccount,
     Activity,
     ActivityTypes,
     CardAction,
     HeroCard,
-    Attachment
+    Attachment,
 )
+import json
 
 class Bot(ActivityHandler):
     
@@ -25,67 +27,57 @@ class Bot(ActivityHandler):
             await self.send_options(turn_context)
     
     async def send_form(self, turn_context: TurnContext):
-
-        fields = [
-            {
-                "label": "Nombre:",
-                "type": "text",
-                "id": "nombre"
-            },
-            {
-                "label": "Apellido:",
-                "type": "text",
-                "id": "apellido"
-            },
-            {
-                "label": "Correo electrónico:",
-                "type": "text",
-                "id": "correo"
-            },
-            {
-                "label": "Mensaje:",
-                "type": "text",
-                "id": "mensaje"
-            }
-        ]
-
-        card = HeroCard(
-            title="Formulario",
-            subtitle="Por favor, rellene los siguientes campos:",
-            buttons=[
-                CardAction(type="imBack", title="Enviar formulario", value="submit")
-            ],
-            items=[
+        card_json = """
+        {
+            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "type": "AdaptiveCard",
+            "version": "1.3",
+            "body": [
                 {
-                    "type": "AdaptiveCard",
-                    "content": {
-                        "type": "VerticalCard",
-                        "items": [
-                            {
-                                "type": "TextRun",
-                                "text": field["label"]
-                            },
-                            {
-                                "type": "Input.TextInput",
-                                "id": field["id"],
-                                "placeholder": "Introduzca su respuesta",
-                                "style": "block"
-                            }
-                        ]
-                    }
-                } for field in fields
+                    "type": "TextBlock",
+                    "text": "Formulario de Ejemplo",
+                    "size": "large",
+                    "weight": "bolder",
+                    "horizontalAlignment": "center"
+                },
+                {
+                    "type": "TextBlock",
+                    "text": "Por favor, completa este formulario",
+                    "size": "medium",
+                    "wrap": true,
+                    "horizontalAlignment": "center"
+                },
+                {
+                    "type": "Input.Text",
+                    "id": "name",
+                    "placeholder": "Nombre"
+                },
+                {
+                    "type": "Input.Text",
+                    "id": "email",
+                    "placeholder": "Email"
+                },
+                {
+                    "type": "Input.Text",
+                    "id": "phone",
+                    "placeholder": "Teléfono"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "Action.Submit",
+                    "title": "Enviar"
+                }
             ]
+        }
+        """
+
+        await turn_context.send_activity(
+            Activity(
+                type="message",
+                attachments=[Attachment(content_type="application/vnd.microsoft.card.adaptive", content=json.loads(card_json))]
+            )
         )
-
-        attachment = Attachment(content_type=CardFactory.content_types.hero_card, content=card.__dict__)
-
-        message = Activity(
-            type=ActivityTypes.message,
-            text="Por favor, complete el siguiente formulario:",
-            attachments=[attachment]
-        )
-
-        await turn_context.send_activity(message)
 
     
     
