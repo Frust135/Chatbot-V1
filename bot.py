@@ -14,6 +14,7 @@ from botbuilder.schema import (
     HeroCard,
     Attachment,
 )
+from utils.api_dictionary_en import get_definition_eng
 import json
 
 class Bot(ActivityHandler):
@@ -27,6 +28,8 @@ class Bot(ActivityHandler):
             
             if "formulario" in text:
                 await self.send_form(turn_context)
+            elif "diccionario" in text:
+                await self.send_dictionary(turn_context)
             else:
                 await self.send_options(turn_context)
                 
@@ -39,7 +42,51 @@ class Bot(ActivityHandler):
             await turn_context.send_activity(f"Nombre: {name}")
             await turn_context.send_activity(f"Email: {email}")
             await turn_context.send_activity(f"Contraseña: {password}")
-    
+        
+        if form == "submit-form-dictionary":
+            word = turn_context.activity.value["word"]
+            definition = get_definition_eng(word)
+            await turn_context.send_activity(f"Palabra: {word}")
+            await turn_context.send_activity(f"Definción: {definition}")
+            
+    async def send_dictionary(self, turn_context: TurnContext):
+        card_json = """
+        {
+            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "type": "AdaptiveCard",
+            "version": "1.3",
+            "body": [
+                {
+                    "type": "TextBlock",
+                    "text": "Ingrese la palabra en inglés",
+                    "weight": "bolder",
+                    "horizontalAlignment": "center"
+                },
+                {
+                    "type": "Input.Text",
+                    "id": "word"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "Action.Submit",
+                    "title": "Enviar",
+                    "data": {
+                        "$type": "Action.Submit",
+                        "action": "submit-form-dictionary"
+                    }
+                }
+            ]
+        }
+        """
+
+        await turn_context.send_activity(
+            Activity(
+                type="message",
+                attachments=[Attachment(content_type="application/vnd.microsoft.card.adaptive", content=json.loads(card_json))]
+            )
+        )
+
     async def send_form(self, turn_context: TurnContext):
         card_json = """
         {
@@ -101,7 +148,7 @@ class Bot(ActivityHandler):
     
     
     async def send_options(self, turn_context: TurnContext):
-        options = ["Formulario"]
+        options = ["Formulario", "Diccionario Inglés"]
         card = HeroCard(
             title="Opciones",
             buttons=[
