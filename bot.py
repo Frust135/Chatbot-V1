@@ -19,12 +19,26 @@ import json
 class Bot(ActivityHandler):
     
     async def on_message_activity(self, turn_context: TurnContext):
-        text = turn_context.activity.text.lower()
-        
-        if "formulario" in text:
-            await self.send_form(turn_context)
+        if turn_context.activity.value != None:
+            action = turn_context.activity.value["action"]
+            await self.echo_form(turn_context, action)
         else:
-            await self.send_options(turn_context)
+            text = turn_context.activity.text.lower()
+            
+            if "formulario" in text:
+                await self.send_form(turn_context)
+            else:
+                await self.send_options(turn_context)
+                
+    async def echo_form(self, turn_context: TurnContext, form):
+        if form == "submit-form-test":
+            name = turn_context.activity.value["name"]
+            email = turn_context.activity.value["email"]
+            phone = turn_context.activity.value["phone"]
+            
+            await turn_context.send_activity(f"Nombre: {name}")
+            await turn_context.send_activity(f"Email: {email}")
+            await turn_context.send_activity(f"Teléfono: {phone}")
     
     async def send_form(self, turn_context: TurnContext):
         card_json = """
@@ -66,7 +80,11 @@ class Bot(ActivityHandler):
             "actions": [
                 {
                     "type": "Action.Submit",
-                    "title": "Enviar"
+                    "title": "Enviar",
+                    "data": {
+                        "$type": "Action.Submit",
+                        "action": "submit-form-test"
+                    }
                 }
             ]
         }
