@@ -34,18 +34,18 @@ class Bot(ActivityHandler):
         if form == "submit-form-test":
             name = turn_context.activity.value["name"]
             email = turn_context.activity.value["email"]
-            phone = turn_context.activity.value["phone"]
+            password = turn_context.activity.value["password"]
             
             await turn_context.send_activity(f"Nombre: {name}")
             await turn_context.send_activity(f"Email: {email}")
-            await turn_context.send_activity(f"Teléfono: {phone}")
+            await turn_context.send_activity(f"Contraseña: {password}")
     
     async def send_form(self, turn_context: TurnContext):
         card_json = """
         {
             "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
             "type": "AdaptiveCard",
-            "version": "1.3",
+            "version": "1.5",
             "body": [
                 {
                     "type": "TextBlock",
@@ -73,8 +73,9 @@ class Bot(ActivityHandler):
                 },
                 {
                     "type": "Input.Text",
-                    "id": "phone",
-                    "placeholder": "Teléfono"
+                    "id": "password",
+                    "placeholder": "Contraseña",
+                    "style": "password"
                 }
             ],
             "actions": [
