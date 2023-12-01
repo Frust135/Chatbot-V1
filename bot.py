@@ -22,7 +22,10 @@ class Bot(ActivityHandler):
     async def on_message_activity(self, turn_context: TurnContext):
         if turn_context.activity.value != None:
             action = turn_context.activity.value["action"]
-            await self.echo_form(turn_context, action)
+            if action == "go-back":
+                await self.send_options(turn_context)
+            else:
+                await self.echo_form(turn_context, action)
         else:
             text = turn_context.activity.text.lower()
             
@@ -48,6 +51,7 @@ class Bot(ActivityHandler):
             definition = get_definition_eng(word)
             await turn_context.send_activity(f"Palabra: {word}")
             await turn_context.send_activity(f"Definción: {definition}")
+            await self.send_dictionary(turn_context)
             
     async def send_dictionary(self, turn_context: TurnContext):
         card_json = """
@@ -74,6 +78,14 @@ class Bot(ActivityHandler):
                     "data": {
                         "$type": "Action.Submit",
                         "action": "submit-form-dictionary"
+                    }
+                },
+                {
+                    "type": "Action.Submit",
+                    "title": "Volver",
+                    "data": {
+                        "$type": "Action.Submit",
+                        "action": "go-back"
                     }
                 }
             ]
@@ -132,6 +144,14 @@ class Bot(ActivityHandler):
                     "data": {
                         "$type": "Action.Submit",
                         "action": "submit-form-test"
+                    }
+                },
+                {
+                    "type": "Action.Submit",
+                    "title": "Volver",
+                    "data": {
+                        "$type": "Action.Submit",
+                        "action": "go-back"
                     }
                 }
             ]
