@@ -10,7 +10,7 @@ from aiohttp.web import Request, Response, json_response
 from datetime import datetime
 
 
-from bot import Bot
+from bot.bot import Bot
 from config import DefaultConfig
 
 CONFIG = DefaultConfig()

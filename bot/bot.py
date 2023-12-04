@@ -14,44 +14,52 @@ from botbuilder.schema import (
     HeroCard,
     Attachment,
 )
-from utils.api_dictionary_en import get_definition_eng
+from .utils.api_dictionary_en import get_definition_eng
 import json
 
 class Bot(ActivityHandler):
     
     async def on_message_activity(self, turn_context: TurnContext):
-        if turn_context.activity.value != None:
-            action = turn_context.activity.value["action"]
-            if action == "go-back":
-                await self.send_options(turn_context)
-            else:
-                await self.echo_form(turn_context, action)
+        if turn_context.activity.value:
+            await self.handle_value_activity(turn_context)
         else:
-            text = turn_context.activity.text.lower()
-            
-            if "formulario" in text:
-                await self.send_form(turn_context)
-            elif "diccionario" in text:
-                await self.send_dictionary(turn_context)
-            else:
-                await self.send_options(turn_context)
-                
-    async def echo_form(self, turn_context: TurnContext, form):
-        if form == "submit-form-test":
-            name = turn_context.activity.value["name"]
-            email = turn_context.activity.value["email"]
-            password = turn_context.activity.value["password"]
-            
-            await turn_context.send_activity(f"Nombre: {name}")
-            await turn_context.send_activity(f"Email: {email}")
-            await turn_context.send_activity(f"Contraseña: {password}")
-        
-        if form == "submit-form-dictionary":
-            word = turn_context.activity.value["word"]
-            definition = get_definition_eng(word)
-            await turn_context.send_activity(f"Palabra: {word}")
-            await turn_context.send_activity(f"Definción: {definition}")
+            await self.handle_text_activity(turn_context)
+    
+    async def handle_value_activity(self, turn_context: TurnContext):
+        action = turn_context.activity.value["action"]
+        if action == "go-back":
+            await self.send_options(turn_context)
+        elif action == "submit-form-test":
+            await self.handle_submit_form_test(turn_context)
+        elif action == "submit-form-dictionary":
+            await self.handle_submit_form_dictionary(turn_context)
+        else:
+            await turn_context.send_activity("Acción no reconocida")
+    
+    async def handle_text_activity(self, turn_context: TurnContext):
+        text = turn_context.activity.text.lower()
+        if "formulario" in text:
+            await self.send_form(turn_context)
+        elif "diccionario" in text:
             await self.send_dictionary(turn_context)
+        else:
+            await self.send_options(turn_context)
+            
+    async def handle_submit_form_test(self, turn_context: TurnContext):
+        name = turn_context.activity.value["name"]
+        email = turn_context.activity.value["email"]
+        password = turn_context.activity.value["password"]
+
+        await turn_context.send_activity(f"Nombre: {name}")
+        await turn_context.send_activity(f"Email: {email}")
+        await turn_context.send_activity(f"Contraseña: {password}")
+        
+    async def handle_submit_form_dictionary(self, turn_context: TurnContext):
+        word = turn_context.activity.value["word"]
+        definition = get_definition_eng(word)
+        await turn_context.send_activity(f"Palabra: {word}")
+        await turn_context.send_activity(f"Definción: {definition}")
+        await self.send_dictionary(turn_context)
             
     async def send_dictionary(self, turn_context: TurnContext):
         card_json = """
