@@ -23,7 +23,13 @@ SETTINGS = BotFrameworkAdapterSettings(
 ADAPTER = BotFrameworkAdapter(settings=SETTINGS)
 
 BOT = Bot()
+
 async def on_error(context: TurnContext, error: Exception):
+    """
+    The `on_error` function sends an error message and a trace activity when an exception occurs in the
+    bot.
+    
+    """
     
     await context.send_activity("The bot encountered an error")
     await context.send_activity(
@@ -44,8 +50,12 @@ async def on_error(context: TurnContext, error: Exception):
         
 ADAPTER.on_turn_error = on_error
 
-# Listen request on /api/messages
 async def messages(req: Request) -> Response:
+    """
+    The function `messages` processes incoming messages, deserializes the activity, and passes it to the
+    bot for processing, returning a response if available.
+
+    """
     if "application/json" in req.headers["Content-Type"]:
         body = await req.json()
     else:
