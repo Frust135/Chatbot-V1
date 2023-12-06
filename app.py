@@ -1,17 +1,17 @@
-from flask import Flask, Response, jsonify, request
 from botbuilder.core import (
     BotFrameworkAdapterSettings,
     TurnContext,
     BotFrameworkAdapter
 )
 from botbuilder.schema import Activity, ActivityTypes
+from botbuilder.core.integration import aiohttp_error_middleware
+from aiohttp import web
+from aiohttp.web import Request, Response, json_response
 from datetime import datetime
 
 
 from bot.bot import Bot
 from config import DefaultConfig
-
-app = Flask(__name__)
 
 CONFIG = DefaultConfig()
 
@@ -50,31 +50,30 @@ async def on_error(context: TurnContext, error: Exception):
         
 ADAPTER.on_turn_error = on_error
 
-@app.route("/api/messages", methods=["POST"])
-async def messages():
+async def messages(req: Request) -> Response:
     """
     The function `messages` processes incoming messages, deserializes the activity, and passes it to the
     bot for processing, returning a response if available.
 
     """
-    if "application/json" in request.headers["Content-Type"]:
-        body = request.get_json()
+    if "application/json" in req.headers["Content-Type"]:
+        body = await req.json()
     else:
         return Response(staus=415)
     
     activity = Activity().deserialize(body)
-    auth_header = request.headers["Authorization"] if "Authorization" in request.headers else ""
+    auth_header = req.headers["Authorization"] if "Authorization" in req.headers else ""
     
     response = await ADAPTER.process_activity(activity, auth_header, BOT.on_turn)
     if response:
-        return jsonify(response.body), response.status
+        return json_response(data=response.body, status=response.status)
     return Response(status=201)
 
-# APP = web.Application(middlewares=[aiohttp_error_middleware])
-# APP.router.add_post("/api/messages", messages)
+APP = web.Application(middlewares=[aiohttp_error_middleware])
+APP.router.add_post("/api/messages", messages)
 
 if __name__ == "__main__":
     try:
-        app.run(host="localhost", port=CONFIG.PORT)
+        web.run_app(APP, host="localhost", port=CONFIG.PORT)
     except Exception as error:
         raise error
