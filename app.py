@@ -11,7 +11,7 @@ from datetime import datetime
 from bot.bot import Bot
 from config import DefaultConfig
 
-APP = Flask(__name__)
+app = Flask(__name__)
 
 CONFIG = DefaultConfig()
 
@@ -50,7 +50,7 @@ async def on_error(context: TurnContext, error: Exception):
         
 ADAPTER.on_turn_error = on_error
 
-@APP.route("/api/messages", methods=["POST"])
+@app.route("/api/messages", methods=["POST"])
 async def messages():
     """
     The function `messages` processes incoming messages, deserializes the activity, and passes it to the
@@ -75,6 +75,6 @@ async def messages():
 
 if __name__ == "__main__":
     try:
-        APP.run(host="localhost", port=CONFIG.PORT)
+        app.run(host="localhost", port=CONFIG.PORT)
     except Exception as error:
         raise error
