@@ -8,7 +8,6 @@ from botbuilder.core import (
 from botbuilder.schema import (
     ChannelAccount,
 )
-from utils.api_dictionary_en import get_definition_eng
 import utils.display_elements as display_elements
 
 
@@ -16,6 +15,7 @@ class Bot(ActivityHandler):
     async def on_members_added_activity(
         self, members_added: List[ChannelAccount], turn_context: TurnContext
     ):
+        from botbuilder.core.teams import TeamsInfo
         """
         The function sends options to a user when new members are added to a conversation.
 
@@ -25,10 +25,9 @@ class Bot(ActivityHandler):
         """
         for member_added in members_added:
             if member_added.id != turn_context.activity.recipient.id:
-                from utils.falabella_api_client import get_all_swagger_categories
-
-                self.categories = await get_all_swagger_categories()
-                await self.send_categories(turn_context)
+                member = await TeamsInfo.get_member(turn_context, turn_context.activity.from_property.id)
+                print(member)
+                await self.send_categories('hola')
 
     async def on_message_activity(self, turn_context: TurnContext):
         """
