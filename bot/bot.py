@@ -8,7 +8,6 @@ from botbuilder.core import (
 from botbuilder.schema import (
     ChannelAccount,
 )
-import utils.display_elements as display_elements
 
 
 class Bot(ActivityHandler):
