@@ -9,7 +9,10 @@ from botbuilder.schema import (
     ChannelAccount,
 )
 from botbuilder.core.teams import TeamsInfo
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 class Bot(ActivityHandler):
     async def on_members_added_activity(
         self, members_added: List[ChannelAccount], turn_context: TurnContext
@@ -31,6 +34,9 @@ class Bot(ActivityHandler):
         value or text and then calling the appropriate handler function.
         """
         text = turn_context.activity.text
-        member = await TeamsInfo.get_member(turn_context, turn_context.activity.from_property.id)
-        print(member)
+        try:
+            member = await TeamsInfo.get_member(turn_context, turn_context.activity.from_property.id)
+            logger.info(f"Member: {member}")
+        except Exception as e:
+            logger.error(f"Error getting member: {e}")
         await turn_context.send_activity(text)
