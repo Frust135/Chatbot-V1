@@ -33,11 +33,10 @@ class Bot(ActivityHandler):
         The `on_message_activity` function handles incoming messages by checking if the message contains a
         value or text and then calling the appropriate handler function.
         """
-        text = turn_context.activity.text        
-        try:
-            member = await TeamsInfo.get_member(turn_context, turn_context.activity.from_property.id)
-            logger.info(f"Member: {member}")
-        except Exception as e:
-            logger.info(turn_context.activity.from_property)
-            logger.error(f"Error getting member: {e}")
+        text = turn_context.activity.text
+        # try:
+        #     member = await TeamsInfo.get_member(turn_context, turn_context.activity.from_property.id)
+        #     logger.info(f"Member: {member}")
+        # except Exception as e:
+        #     logger.error(f"Error getting member: {e}")
         await turn_context.send_activity(text)
