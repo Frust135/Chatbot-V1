@@ -38,5 +38,6 @@ class Bot(ActivityHandler):
             member = await TeamsInfo.get_member(turn_context, turn_context.activity.from_property.id)
             logger.info(f"Member: {member}")
         except Exception as e:
+            logger.error(turn_context.activity.from_property.id)
             logger.error(f"Error getting member: {e}")
         await turn_context.send_activity(text)
